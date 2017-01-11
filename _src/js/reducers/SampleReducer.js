@@ -23,6 +23,7 @@ export default function SampleReducer(state = initialState, action) {
   }
   case ActionType.REQUEST: {
     console.log(ActionType.REQUEST)
+    break;
     // return Object.assign({}, state, {
     //   items: state.items
     // });

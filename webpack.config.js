@@ -1,36 +1,59 @@
-const path = require('path');
-const webpack = require('webpack');
+require('babel-polyfill');
+var webpack = require('webpack');
+var path = require('path');
+
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
+const DEBUG = !process.argv.includes('--release');
+// console.log(DEBUG); // ここは記事用に書いてるだけなので後で消す
+
 module.exports = [
   {
-    entry: './_src/js/index.js',
+    entry: [
+      // 'webpack/hot/dev-server',
+      // 'webpack-hot-middleware/client',
+      './_src/js/index.jsx'
+    ],
     output: {
       path: path.resolve('./js/'),
+      // path: path.join(__dirname, 'dist'),
+      // publicPath: '/',
       filename: 'bundle.js'
+    },
+    plugins: [
+      new BrowserSyncPlugin({
+        server: { baseDir: ['./'] }
+      }), 
+      new webpack.optimize.OccurenceOrderPlugin(),
+      // new webpack.HotModuleReplacementPlugin(),
+      new webpack.NoErrorsPlugin()
+    ],
+    eslint: {
+      configFile: './.eslintrc',
     },
     module: {
       loaders: [
         {
-          test: /.jsx?$/,
-          loader: 'babel',
-          exclude: /node_modules/
+          test: /\.(js|jsx)$/,
+          exclude: /node_modules/,
+          loaders: ['react-hot', 'babel'],
+          query:{
+            presets: ['react', 'es2015']
+          }
+        },
+        // ESLintの対象ファイルの指定
+        {
+          test: /\.(js|jsx)$/,
+          loader: 'eslint',
+          exclude: /node_modules/, // node_modules配下のファイルは対象外にする
         }
       ]
     },
-    plugins: [
-      // new webpack.optimize.UglifyJsPlugin(),
-      new webpack.optimize.OccurenceOrderPlugin(),
-      new webpack.optimize.DedupePlugin(), 
-      new webpack.optimize.AggressiveMergingPlugin(),
-      new BrowserSyncPlugin({
-        server: { baseDir: ['./'] }
-      }), 
-    ] 
+    devtool: DEBUG ? 'cheap-module-eval-source-map' : false
   },{
     entry: {
-      common: './_src/scss/style.scss'
+      style: path.join(__dirname, '_src/scss/style.scss')
     },
     output: {
       path: './css/',
@@ -40,41 +63,13 @@ module.exports = [
       loaders: [
         { 
           test: /\.scss$/,
-          loader: ExtractTextPlugin.extract('style-loader', 'css-loader?minimize!sass-loader')
+          loader: ExtractTextPlugin.extract('style-loader','css-loader?sourceMap&minimize!sass-loader?outputStyle=expanded&sourceMap=true&sourceMapContents=true') 
         }
       ]
     },
     plugins: [
       new ExtractTextPlugin('[name].css')
-    ]
+    ],
+    devtool: 'source-map'
   }
 ]
-
-
-
-
-// module.exports = {
-//   entry: './_src/js/index.js',
-//   output: {
-//     path: path.resolve('./js/'),
-//     filename: 'bundle.js'
-//   },
-//   module: {
-//     loaders: [
-//       {
-//         test: /.jsx?$/,
-//         loader: 'babel',
-//         exclude: /node_modules/
-//       }
-//     ]
-//   },
-//   plugins: [
-//     // new webpack.optimize.UglifyJsPlugin(),
-//     new webpack.optimize.OccurenceOrderPlugin(),
-//     new webpack.optimize.DedupePlugin(), 
-//     new webpack.optimize.AggressiveMergingPlugin(),
-//     new BrowserSyncPlugin({
-//       server: { baseDir: ['./'] }
-//     }), 
-//   ] 
-// }

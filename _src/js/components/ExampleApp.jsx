@@ -2,7 +2,7 @@ import React , {Component} from 'react'
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import SampleStore from '../stores/SampleStore'
+// import SampleStore from '../stores/SampleStore'
 import * as SampleActions from '../actions/SampleActions'
 
 
@@ -53,14 +53,10 @@ class ExampleApp extends Component {
 }
 
 ExampleApp.propTypes = {
-  sampleData: React.PropTypes.object
+  sampleData: React.PropTypes.object,
+  sampleActions: React.PropTypes.object
 };
 
-function getSapmleState() {
-  return {
-    sample: SampleStore.getSample()
-  };
-}
 
 // state の中に SampleStore.js の combineReducers で指定したキーの State が全部入ってくる
 function mapStateToProps(state) {
